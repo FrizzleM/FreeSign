@@ -38,15 +38,14 @@ struct AppIconView: View {
 	// dont translate
 	var sections: [String: [AltIcon]] = [
 		"Main": [
-			AltIcon(displayName: "Feather", author: "Samara", key: nil),
-			AltIcon(displayName: "Feather (macOS)", author: "Samara", key: "V2Mac"),
-			AltIcon(displayName: "Feather v1", author: "Samara", key: "V1"),
-			AltIcon(displayName: "Feather v1 (macOS)", author: "Samara", key: "V1Mac"),
-			AltIcon(displayName: "Feather v0", author: "Samara", key: "V0"),
-			AltIcon(displayName: "Feather Donor", author: "Samara", key: "Donor")
+			AltIcon(displayName: "FreeSign", author: "Frizzle", key: nil),
+			AltIcon(displayName: "FreeSign (macOS)", author: "Frizzle", key: "V2Mac"),
+			AltIcon(displayName: "FreeSign v1", author: "Frizzle", key: "V1"),
+			AltIcon(displayName: "FreeSign v1 (macOS)", author: "Frizzle", key: "V1Mac"),
+			AltIcon(displayName: "FreeSign v0", author: "Frizzle", key: "V0")
 		],
 		"Wingio": [
-			AltIcon(displayName: "Feather", author: "Wingio", key: "Wing"),
+			AltIcon(displayName: "FreeSign", author: "Wingio", key: "Wing"),
 		]
 	]
 	

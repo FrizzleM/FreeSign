@@ -62,7 +62,7 @@ struct TunnelView: View {
 				}
 				if isLocalDevVpnAvailable {
 					Button(.localized("Connect to LocalDevVPN"), systemImage: "link") {
-						UIApplication.open("localdevvpn://enable?scheme=feather")
+						UIApplication.open("localdevvpn://enable?scheme=freesign")
 					}
 				} else {
 					Button(.localized("Download LocalDevVPN"), systemImage: "arrow.down.app") {

@@ -50,8 +50,8 @@ struct FeatherApp: App {
 	}
 	
 	private func _handleURL(_ url: URL) {
-		if url.scheme == "feather" {
-			/// feather://import-certificate?p12=<base64>&mobileprovision=<base64>&password=<base64>
+		if url.scheme == "freesign" {
+			/// freesign://import-certificate?p12=<base64>&mobileprovision=<base64>&password=<base64>
 			if url.host == "import-certificate" {
 				guard
 					let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
@@ -100,7 +100,7 @@ struct FeatherApp: App {
 				
 				return
 			}
-			/// feather://export-certificate?callback_template=<template>
+			/// freesign://export-certificate?callback_template=<template>
 			/// ?callback_template=: This is how we callback to the application requesting the certificate, this will be a url scheme
 			/// 	example: livecontainer%3A%2F%2Fcertificate%3Fcert%3D%24%28BASE64_CERT%29%26password%3D%24%28PASSWORD%29
 			/// 	decoded: livecontainer://certificate?cert=$(BASE64_CERT)&password=$(PASSWORD)
@@ -117,11 +117,11 @@ struct FeatherApp: App {
 				
 				FR.exportCertificateAndOpenUrl(using: callbackTemplate)
 			}
-			/// feather://source/<url>
+			/// freesign://source/<url>
 			if let fullPath = url.validatedScheme(after: "/source/") {
 				FR.handleSource(fullPath) { }
 			}
-			/// feather://install/<url.ipa>
+			/// freesign://install/<url.ipa>
 			if
 				let fullPath = url.validatedScheme(after: "/install/"),
 				let downloadURL = URL(string: fullPath)
@@ -148,11 +148,17 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 		_ application: UIApplication,
 		didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
 	) -> Bool {
+		_configureFreeSignDefaults()
 		_createPipeline()
 		_createDocumentsDirectories()
 		ResetView.clearWorkCache()
 		_addDefaultCertificates()
 		return true
+	}
+
+	private func _configureFreeSignDefaults() {
+		UserDefaults.standard.set(0, forKey: "Feather.installationMethod")
+		UserDefaults.standard.set(1, forKey: "Feather.serverMethod")
 	}
 	
 	private func _createPipeline() {
@@ -164,7 +170,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 				config.urlCache = nil
 				return DataLoader(configuration: config)
 			}()
-			let dataCache = try? DataCache(name: "thewonderofyou.Feather.datacache") // disk cache
+			let dataCache = try? DataCache(name: "frizzle.FreeSign.datacache") // disk cache
 			let imageCache = Nuke.ImageCache() // memory cache
 			dataCache?.sizeLimit = 500 * 1024 * 1024
 			imageCache.costLimit = 100 * 1024 * 1024

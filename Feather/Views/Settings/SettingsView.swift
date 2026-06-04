@@ -32,19 +32,12 @@ struct SettingsView: View {
 		}
 		return _certificates[_storedSelectedCert]
 	}
-
-    
-	private let _donationsUrl = "https://github.com/sponsors/claration"
-	private let _githubUrl = "https://github.com/claration/Feather"
+	private let _githubUrl = "https://github.com/Frizzle/FreeSign"
     
 	// MARK: Body
 	var body: some View {
 		NBNavigationView(.localized("Settings")) {
 			Form {
-				#if !NIGHTLY && !DEBUG
-					SettingsDonationCellView(site: _donationsUrl)
-				#endif
-                
 				_feedback()
                 
 				Section {
@@ -80,11 +73,8 @@ struct SettingsView: View {
 					NavigationLink(destination: ArchiveView()) {
 						Label(.localized("Archive & Compression"), systemImage: "archivebox")
 					}
-					NavigationLink(destination: InstallationView()) {
-						Label(.localized("Installation"), systemImage: "arrow.down.circle")
-					}
 				} footer: {
-					Text(.localized("Configure the apps way of installing, its zip compression levels, and custom modifications to apps."))
+					Text(.localized("Configure zip compression levels and custom modifications to apps."))
 				}
                 
 				_directories()
@@ -106,14 +96,6 @@ extension SettingsView {
 	@ViewBuilder
 	private func _feedback() -> some View {
 		Section {
-			NavigationLink(destination: AboutView()) {
-				Label {
-					Text(verbatim: .localized("About %@", arguments: Bundle.main.name))
-				} icon: {
-					FRAppIconView(size: 23)
-				}
-			}
-            
 			Button(.localized("Submit Feedback"), systemImage: "safari") {
 				let bugAction: UIAlertAction = .init(title: .localized("Bug Report"), style: .default) { _ in
 					UIApplication.open(_makeGitHubIssueURL(url: _githubUrl))

@@ -21,12 +21,9 @@ extension AboutView {
 // MARK: - View
 struct AboutView: View {
 	@State private var _credits: [CreditsModel] = [
-		.init(name: "C", desc: "Developer", github: "claration"),
-		.init(name: "Asami", desc: "Developer", github: "Nyasami"),
+		.init(name: "Frizzle", desc: "Developer", github: "Frizzle"),
 		.init(name: "Lakhan Lothiyi", desc: "AltStore Repositories", github: "llsc12"),
 	]
-	
-	let pngURL = URL(string: "https://sponsors.claration.dev/sponsors.png")!
 	
 	// MARK: Body
 	var body: some View {
@@ -35,7 +32,7 @@ struct AboutView: View {
 				VStack {
 					FRAppIconView(size: 72)
 					
-					Text(Bundle.main.exec)
+					Text(Bundle.main.name)
 						.font(.largeTitle)
 						.bold()
 						.foregroundStyle(Color.accentColor)
@@ -56,36 +53,6 @@ struct AboutView: View {
 					_credit(name: credit.name, desc: credit.desc, github: credit.github)
 				}
 				.transition(.slide)
-			}
-			
-			NBSection(.localized("Sponsors")) {
-				Text(.localized("💜 This couldn't of been done without my sponsors!"))
-					.foregroundStyle(.secondary)
-					.padding(.vertical, 2)
-				AsyncImage(url: pngURL) { phase in
-					switch phase {
-					case .empty:
-						ProgressView()
-							.frame(maxWidth: .infinity)
-							.frame(height: 120)
-					case .success(let image):
-						image
-							.resizable()
-							.scaledToFit()
-							.frame(maxWidth: .infinity)
-							.listRowInsets(EdgeInsets())
-					case .failure:
-						Image(systemName: "photo")
-							.resizable()
-							.scaledToFit()
-							.frame(maxWidth: .infinity)
-							.foregroundColor(.gray)
-							.frame(height: 120)
-						
-					@unknown default:
-						EmptyView()
-					}
-				}
 			}
 		}
 	}
