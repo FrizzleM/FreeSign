@@ -1,26 +1,6 @@
 # FreeSign
 
-[![GitHub Release](https://img.shields.io/github/v/release/Frizzle/FreeSign?include_prereleases)](https://github.com/Frizzle/FreeSign/releases)
-[![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Frizzle/FreeSign/total)](https://github.com/Frizzle/FreeSign/releases)
-[![GitHub License](https://img.shields.io/github/license/Frizzle/FreeSign?color=%23C96FAD)](https://github.com/Frizzle/FreeSign/blob/main/LICENSE)
-
-This app allows you to install and manage applications contained in a single app, using certificate pairs and various installation techniques to allow apps to install to your device. This is an entirely stock application and uses built-in features to be able to do this!
-
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="Images/Image-dark.png"><source media="(prefers-color-scheme: light)" srcset="Images/Image-light.png"><img alt="FreeSign" src="Images/Image-light.png"></picture></p>
-
-### Features
-
-- User friendly, and clean UI.
-- Sign and install applications.
-- Supports [AltStore](https://faq.altstore.io/distribute-your-apps/make-a-source#apps) repositories.
-- View detailed information about apps and your certificates.
-- Configurable signing options mainly for modifying the app, such as appearance and allowing support for the files app.
-  - This includes patching apps for compatibility and Liquid Glass.
-- Tweak support for advanced users, using [Ellekit](https://github.com/tealbathingsuit/ellekit) for injection. 
-  - Supports injecting `.deb` and `.dylib` files.
-- Actively maintained: always ensuring most apps get installed properly.
-- No tracking or analytics, ensuring user privacy.
-- Of course, open source and free.
+BreakFree's version of Feather
 
 ## Download
 
