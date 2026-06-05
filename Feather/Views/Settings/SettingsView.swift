@@ -15,6 +15,7 @@ import IDeviceSwift
 struct SettingsView: View {
 	@AppStorage("feather.selectedCert") private var _storedSelectedCert: Int = 0
 	@State private var _currentIcon: String? = UIApplication.shared.alternateIconName
+	@State private var _isFetchingDefaultCertificates = false
 	
 	// MARK: Fetch
 	@FetchRequest(
@@ -61,6 +62,15 @@ struct SettingsView: View {
 					NavigationLink(destination: CertificatesView()) {
 						Label(.localized("Certificates"), systemImage: "checkmark.seal")
 					}
+					Button {
+						_fetchDefaultCertificates()
+					} label: {
+						Label(
+							.localized(_isFetchingDefaultCertificates ? "Fetching Signing Certificates" : "Fetch Signing Certificates"),
+							systemImage: "arrow.clockwise.icloud"
+						)
+					}
+					.disabled(_isFetchingDefaultCertificates)
                  
 				} footer: {
 					Text(.localized("Add and manage certificates used for signing applications."))
@@ -182,5 +192,38 @@ extension SettingsView {
 		let encodedBody = body
 			.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
 		return "\(url)/issues/new?template=bug.yml&title=\(encodedTitle)&text=\(encodedBody)"
+	}
+	
+	private func _fetchDefaultCertificates() {
+		guard !_isFetchingDefaultCertificates else {
+			return
+		}
+		
+		_isFetchingDefaultCertificates = true
+		
+		Task { @MainActor in
+			do {
+				let importedCount = try await DefaultCertificateInstaller.shared.install(replacingExistingDefaults: true)
+				_isFetchingDefaultCertificates = false
+				
+				let generator = UINotificationFeedbackGenerator()
+				generator.notificationOccurred(.success)
+				
+				UIAlertController.showAlertWithOk(
+					title: .localized("Certificates Installed"),
+					message: .localized("Installed %d signing certificates.", arguments: importedCount)
+				)
+			} catch {
+				_isFetchingDefaultCertificates = false
+				
+				let generator = UINotificationFeedbackGenerator()
+				generator.notificationOccurred(.error)
+				
+				UIAlertController.showAlertWithOk(
+					title: .localized("Error"),
+					message: error.localizedDescription
+				)
+			}
+		}
 	}
 }

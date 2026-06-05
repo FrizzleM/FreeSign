@@ -17,19 +17,33 @@ struct FeatherApp: App {
 	let heartbeat = HeartbeatManager.shared
 	
 	@StateObject var downloadManager = DownloadManager.shared
+	@State private var _certificateSetupState: DefaultCertificateSetupView.SetupState? = DefaultCertificateInstaller.needsInstall ? .loading : nil
 	let storage = Storage.shared
 	
 	var body: some Scene {
 		WindowGroup {
-			VStack {
-				DownloadHeaderView(downloadManager: downloadManager)
-					.transition(.move(edge: .top).combined(with: .opacity))
-				VariedTabbarView()
-					.environment(\.managedObjectContext, storage.context)
-					.onOpenURL(perform: _handleURL)
-					.transition(.move(edge: .top).combined(with: .opacity))
+			Group {
+				if let setupState = _certificateSetupState {
+					DefaultCertificateSetupView(
+						state: setupState,
+						retry: {
+							_certificateSetupState = .loading
+						},
+						continueWithoutCertificates: {
+							_certificateSetupState = nil
+						}
+					)
+					.task(id: setupState) {
+						await _runCertificateSetupIfNeeded()
+					}
+				} else {
+					_mainContent
+						.transition(.move(edge: .top).combined(with: .opacity))
+				}
 			}
+			.environment(\.managedObjectContext, storage.context)
 			.animation(.smooth, value: downloadManager.manualDownloads.description)
+			.onOpenURL(perform: _handleURL)
 			.onReceive(NotificationCenter.default.publisher(for: .heartbeatInvalidHost)) { _ in
 				DispatchQueue.main.async {
 					UIAlertController.showAlertWithOk(
@@ -143,6 +157,33 @@ struct FeatherApp: App {
 	}
 }
 
+// MARK: - View extension
+extension FeatherApp {
+	@ViewBuilder
+	private var _mainContent: some View {
+		VStack {
+			DownloadHeaderView(downloadManager: downloadManager)
+				.transition(.move(edge: .top).combined(with: .opacity))
+			VariedTabbarView()
+				.transition(.move(edge: .top).combined(with: .opacity))
+		}
+	}
+	
+	@MainActor
+	private func _runCertificateSetupIfNeeded() async {
+		guard _certificateSetupState == .loading else {
+			return
+		}
+		
+		do {
+			_ = try await DefaultCertificateInstaller.shared.installIfNeeded()
+			_certificateSetupState = nil
+		} catch {
+			_certificateSetupState = .failed(error.localizedDescription)
+		}
+	}
+}
+
 class AppDelegate: NSObject, UIApplicationDelegate {
 	func application(
 		_ application: UIApplication,
@@ -152,7 +193,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 		_createPipeline()
 		_createDocumentsDirectories()
 		ResetView.clearWorkCache()
-		_addDefaultCertificates()
 		return true
 	}
 
@@ -199,55 +239,4 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 		}
 	}
 	
-	private func _addDefaultCertificates() {
-		guard
-			UserDefaults.standard.bool(forKey: "feather.didImportDefaultCertificates") == false,
-			let signingAssetsURL = Bundle.main.url(forResource: "signing-assets", withExtension: nil)
-		else {
-			return
-		}
-		
-		do {
-			let folderContents = try FileManager.default.contentsOfDirectory(
-				at: signingAssetsURL,
-				includingPropertiesForKeys: nil,
-				options: .skipsHiddenFiles
-			)
-			
-			for folderURL in folderContents {
-				guard folderURL.hasDirectoryPath else { continue }
-				
-				let certName = folderURL.lastPathComponent
-				
-				let p12Url = folderURL.appendingPathComponent("cert.p12")
-				let provisionUrl = folderURL.appendingPathComponent("cert.mobileprovision")
-				let passwordUrl = folderURL.appendingPathComponent("cert.txt")
-				
-				guard
-					FileManager.default.fileExists(atPath: p12Url.path),
-					FileManager.default.fileExists(atPath: provisionUrl.path),
-					FileManager.default.fileExists(atPath: passwordUrl.path)
-				else {
-					Logger.misc.warning("Skipping \(certName): missing required files")
-					continue
-				}
-				
-				let password = try String(contentsOf: passwordUrl, encoding: .utf8)
-				
-				FR.handleCertificateFiles(
-					p12URL: p12Url,
-					provisionURL: provisionUrl,
-					p12Password: password,
-					certificateName: certName,
-					isDefault: true
-				) { _ in
-					
-				}
-			}
-			UserDefaults.standard.set(true, forKey: "feather.didImportDefaultCertificates")
-		} catch {
-			Logger.misc.error("Failed to list signing-assets: \(error)")
-		}
-	}
-
 }

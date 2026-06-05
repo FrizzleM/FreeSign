@@ -18,9 +18,11 @@ extension Storage {
 		ppq: Bool = false,
 		expiration: Date,
 		isDefault: Bool = false,
+		playsFeedback: Bool = true,
+		checksRevocation: Bool = true,
 		completion: @escaping (Error?) -> Void
 	) {
-		let generator = UIImpactFeedbackGenerator(style: .light)
+		let generator = playsFeedback ? UIImpactFeedbackGenerator(style: .light) : nil
 		
 		let new = CertificatePair(context: context)
 		new.uuid = uuid
@@ -30,9 +32,11 @@ extension Storage {
 		new.expiration = expiration
 		new.nickname = nickname
 		new.isDefault = isDefault
-		Storage.shared.revokagedCertificate(for: new)
+		if checksRevocation {
+			Storage.shared.revokagedCertificate(for: new)
+		}
 		saveContext()
-		generator.impactOccurred()
+		generator?.impactOccurred()
 		completion(nil)
 	}
 	
@@ -109,5 +113,15 @@ extension Storage {
 		let fetchRequest: NSFetchRequest<CertificatePair> = CertificatePair.fetchRequest()
 		fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \CertificatePair.date, ascending: false)]
 		return (try? context.fetch(fetchRequest)) ?? []
+	}
+	
+	func deleteDefaultCertificates() {
+		let certificates = getAllCertificates().filter { $0.isDefault }
+		
+		for certificate in certificates {
+			deleteCertificate(for: certificate)
+		}
+		
+		UserDefaults.standard.set(0, forKey: "feather.selectedCert")
 	}
 }

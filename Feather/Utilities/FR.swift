@@ -73,6 +73,8 @@ enum FR {
 		p12Password: String,
 		certificateName: String = "",
 		isDefault: Bool = false,
+		playsFeedback: Bool = true,
+		checksRevocation: Bool = true,
 		completion: @escaping (Error?) -> Void
 	) {
 		Task.detached {
@@ -81,7 +83,9 @@ enum FR {
 				provision: provisionURL,
 				password: p12Password,
 				nickname: certificateName.isEmpty ? nil : certificateName,
-				isDefault: isDefault
+				isDefault: isDefault,
+				playsFeedback: playsFeedback,
+				checksRevocation: checksRevocation
 			)
 			
 			do {

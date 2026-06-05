@@ -17,6 +17,8 @@ final class CertificateFileHandler: NSObject {
 	private let _keyPassword: String?
 	private let _certNickname: String?
 	private let _isDefault: Bool
+	private let _playsFeedback: Bool
+	private let _checksRevocation: Bool
 	
 	private var _certPair: Certificate?
 	
@@ -25,13 +27,17 @@ final class CertificateFileHandler: NSObject {
 		provision: URL,
 		password: String? = nil,
 		nickname: String? = nil,
-		isDefault: Bool = false
+		isDefault: Bool = false,
+		playsFeedback: Bool = true,
+		checksRevocation: Bool = true
 	) {
 		self._key = key
 		self._provision = provision
 		self._keyPassword = password
 		self._certNickname = nickname
 		self._isDefault = isDefault
+		self._playsFeedback = playsFeedback
+		self._checksRevocation = checksRevocation
 		
 		_certPair = CertificateReader(provision).decoded
 		
@@ -52,6 +58,7 @@ final class CertificateFileHandler: NSObject {
 		try _fileManager.copyItem(at: _provision, to: destinationURL.appendingPathComponent(_provision.lastPathComponent))
 	}
 	
+	@MainActor
 	func addToDatabase() async throws {
 		
 		Storage.shared.addCertificate(
@@ -60,7 +67,9 @@ final class CertificateFileHandler: NSObject {
 			nickname: _certNickname,
 			ppq: _certPair?.PPQCheck ?? false,
 			expiration: _certPair?.ExpirationDate ?? Date(),
-			isDefault: _isDefault
+			isDefault: _isDefault,
+			playsFeedback: _playsFeedback,
+			checksRevocation: _checksRevocation
 		) { _ in
 			Logger.misc.info("[\(self._uuid)] Added to database")
 		}
