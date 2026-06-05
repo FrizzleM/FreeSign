@@ -107,7 +107,7 @@ extension SettingsView {
 		Section {
 			VStack(alignment: .leading, spacing: 16) {
 				VStack(alignment: .leading, spacing: 4) {
-					Text("FastSign")
+					Text("FreeSign")
 						.font(.largeTitle.bold())
 						.foregroundStyle(Color(hex: _selectedColorHex))
 					Text("by Frizzle")

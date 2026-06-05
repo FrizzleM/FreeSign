@@ -5451,9 +5451,6 @@
         }
       }
     },
-    "FastSign" : {
-
-    },
     "Featured" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5968,6 +5965,9 @@
           }
         }
       }
+    },
+    "FreeSign" : {
+
     },
     "Fully Local" : {
       "extractionState" : "manual",
