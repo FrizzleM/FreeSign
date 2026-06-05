@@ -17,6 +17,7 @@ struct FeatherApp: App {
 	let heartbeat = HeartbeatManager.shared
 	
 	@StateObject var downloadManager = DownloadManager.shared
+	@StateObject private var _sourceFetchErrorToast = SourceFetchErrorToastCenter.shared
 	@State private var _certificateSetupState: DefaultCertificateSetupView.SetupState? = DefaultCertificateInstaller.needsInstall ? .loading : nil
 	let storage = Storage.shared
 	
@@ -43,6 +44,16 @@ struct FeatherApp: App {
 			}
 			.environment(\.managedObjectContext, storage.context)
 			.animation(.smooth, value: downloadManager.manualDownloads.description)
+			.overlay(alignment: .bottom) {
+				if let message = _sourceFetchErrorToast.message {
+					SourceFetchErrorToastView(
+						message: message,
+						systemImage: _sourceFetchErrorToast.systemImage
+					)
+						.padding(.bottom, 82)
+				}
+			}
+			.animation(.spring(response: 0.28, dampingFraction: 0.9), value: _sourceFetchErrorToast.message)
 			.onOpenURL(perform: _handleURL)
 			.onReceive(NotificationCenter.default.publisher(for: .heartbeatInvalidHost)) { _ in
 				DispatchQueue.main.async {
@@ -58,7 +69,7 @@ struct FeatherApp: App {
 					UIApplication.topViewController()?.view.window?.overrideUserInterfaceStyle = style
 				}
 				
-				UIApplication.topViewController()?.view.window?.tintColor = UIColor(Color(hex: UserDefaults.standard.string(forKey: "Feather.userTintColor") ?? "#848ef9"))
+				UIApplication.topViewController()?.view.window?.tintColor = UIColor(Color(hex: UserDefaults.standard.string(forKey: "Feather.userTintColor") ?? "#004CFF"))
 			}
 		}
 	}
@@ -193,7 +204,28 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 		_createPipeline()
 		_createDocumentsDirectories()
 		ResetView.clearWorkCache()
+		Task { @MainActor in
+			await _installStartupSources()
+		}
 		return true
+	}
+	
+	@MainActor
+	private func _installStartupSources() async {
+		var insertedCount = DefaultSourceInstaller.installIfNeeded()
+		
+		do {
+			insertedCount += try await DefaultSourceInstaller.updateFromRemote()
+		} catch {
+			Logger.misc.error("Failed to update startup sources: \(error.localizedDescription)")
+		}
+		
+		if insertedCount > 0 {
+			SourceFetchErrorToastCenter.shared.show(
+				.localized("Succesfully added %d sources", arguments: insertedCount),
+				systemImage: "checkmark.circle.fill"
+			)
+		}
 	}
 
 	private func _configureFreeSignDefaults() {

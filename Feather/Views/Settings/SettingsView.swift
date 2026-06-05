@@ -14,7 +14,7 @@ import IDeviceSwift
 // MARK: - View
 struct SettingsView: View {
 	@AppStorage("feather.selectedCert") private var _storedSelectedCert: Int = 0
-	@State private var _currentIcon: String? = UIApplication.shared.alternateIconName
+	@AppStorage("Feather.userTintColor") private var _selectedColorHex: String = "#004CFF"
 	@State private var _isFetchingDefaultCertificates = false
 	
 	// MARK: Fetch
@@ -37,18 +37,10 @@ struct SettingsView: View {
     
 	// MARK: Body
 	var body: some View {
-		NBNavigationView(.localized("Settings")) {
+		NBNavigationView("", displayMode: .inline) {
 			Form {
+				_pageHeader()
 				_feedback()
-                
-				Section {
-					NavigationLink(destination: AppearanceView()) {
-						Label(.localized("Appearance"), systemImage: "paintbrush")
-					}
-					NavigationLink(destination: AppIconView(currentIcon: $_currentIcon)) {
-						Label(.localized("App Icon"), systemImage: "app.badge")
-					}
-				}
                 
 				NBSection(.localized("Certificates")) {
                     
@@ -66,7 +58,7 @@ struct SettingsView: View {
 						_fetchDefaultCertificates()
 					} label: {
 						Label(
-							.localized(_isFetchingDefaultCertificates ? "Fetching Signing Certificates" : "Fetch Signing Certificates"),
+							.localized(_isFetchingDefaultCertificates ? "Updating certs" : "Update Certs"),
 							systemImage: "arrow.clockwise.icloud"
 						)
 					}
@@ -74,6 +66,12 @@ struct SettingsView: View {
                  
 				} footer: {
 					Text(.localized("Add and manage certificates used for signing applications."))
+				}
+				
+				Section {
+					NavigationLink(destination: AppearanceView()) {
+						Label(.localized("Appearance"), systemImage: "paintbrush")
+					}
 				}
                 
 				NBSection(.localized("Features")) {
@@ -97,12 +95,40 @@ struct SettingsView: View {
 					Text(.localized("Reset the applications sources, certificates, apps, and general contents."))
 				}
 			}
+			.toolbar(.hidden, for: .navigationBar)
 		}
 	}
 }
 
 // MARK: - View extension
 extension SettingsView {
+	@ViewBuilder
+	private func _pageHeader() -> some View {
+		Section {
+			VStack(alignment: .leading, spacing: 16) {
+				VStack(alignment: .leading, spacing: 4) {
+					Text("FastSign")
+						.font(.largeTitle.bold())
+						.foregroundStyle(Color(hex: _selectedColorHex))
+					Text("by Frizzle")
+						.font(.subheadline.weight(.medium))
+						.foregroundStyle(.secondary)
+				}
+				
+				Text(.localized("Settings"))
+					.font(.largeTitle.bold())
+					.foregroundStyle(.primary)
+			}
+			.frame(maxWidth: .infinity, alignment: .leading)
+			.fixedSize(horizontal: false, vertical: true)
+			.padding(.top, 14)
+			.padding(.bottom, 8)
+			.listRowBackground(Color.clear)
+			.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 4, trailing: 0))
+			.listRowSeparator(.hidden)
+		}
+	}
+	
 	@ViewBuilder
 	private func _feedback() -> some View {
 		Section {

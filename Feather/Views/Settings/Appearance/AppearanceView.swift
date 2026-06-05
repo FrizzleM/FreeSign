@@ -29,7 +29,7 @@ struct AppearanceView: View {
 	]
 	
 	@AppStorage("Feather.userTintColor")
-	private var _selectedColorHex: String = "#848ef9"
+	private var _selectedColorHex: String = "#004CFF"
 	
 	private var _tintColorBinding: Binding<Color> {
 		Binding(

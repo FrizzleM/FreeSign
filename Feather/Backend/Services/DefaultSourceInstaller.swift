@@ -1,0 +1,195 @@
+//
+//  DefaultSourceInstaller.swift
+//  Feather
+//
+//  Created on 05.06.2026.
+//
+
+import Foundation
+import OSLog
+
+enum DefaultSourceInstaller {
+	private static let _didInstallKey = "feather.didInstallDefaultSources"
+	private static let _remoteSourcesURL = URL(string: "https://raw.githubusercontent.com/FrizzleM/BreakFree/refs/heads/main/Repos")!
+	private static let _sourceURLStrings = [
+		"https://fastsign.dev/repo.json",
+		"https://flyinghead.github.io/flycast-builds/altstore.json",
+		"https://qnblackcat.github.io/AltStore/apps.json",
+		"https://community-apps.sidestore.io/sidecommunity.json",
+		"https://wuxu1.github.io/wuxu-complete-plus.json",
+		"https://pokemmo.eu/altstore/",
+		"https://xitrix.github.io/iTorrent/AltStore.json",
+		"https://raw.githubusercontent.com/Neoncat-OG/TrollStore-IPAs/main/apps_esign.json",
+		"https://altstore.oatmealdome.me",
+		"https://repo.madari.media/nightly/repo.json",
+		"https://ish.app/altstore.json",
+		"https://tiny.one/SpotC",
+		"https://repository.apptesters.org",
+		"https://raw.githubusercontent.com/driftywinds/driftywinds.github.io/master/AltStore/apps.json",
+		"https://appmarket.tech/altstore.json",
+		"https://raw.githubusercontent.com/Auties00/Artemis/refs/heads/main/source.json",
+		"https://bunduuk.github.io/altstore-source/apps.json",
+		"https://get.furaffinity.app/altstore-world/",
+		"https://github.com/dvntm0/AltStore/raw/refs/heads/main/feather.json",
+		"https://enmity-mod.github.io/repo/altstore.json",
+		"https://repo.owo.network/",
+		"https://therealfoxster.github.io/altsource/apps.json",
+		"https://raw.githubusercontent.com/Nyasami/Ksign/refs/heads/main/repo.json",
+		"https://github.com/khcrysalis/Feather/raw/main/app-repo.json",
+		"https://buildbot.libretro.com/stable/altstore.json",
+		"https://alts.lao.sb",
+		"https://theodyssey.dev/altstore/odysseysource.json",
+		"https://raw.githubusercontent.com/vizunchik/AltStoreRus/master/apps.json",
+		"https://bit.ly/Altstore-complete",
+		"https://hottubapp.io/altstore",
+		"https://randomblock1.com/altstore/apps.json",
+		"https://quarksources.github.io/dist/quantumsource.min.json",
+		"https://quarksources.github.io/quarksource-cracked.json",
+		"https://alt.getutm.app",
+		"https://taurine.app/altstore/taurinestore.json",
+		"https://raw.githubusercontent.com/Balackburn/YTLitePlusAltstore/main/apps.json",
+		"https://bit.ly/Quantumsource-plus",
+		"https://raw.githubusercontent.com/driftywinds/driftywinds.github.io/master/AltStore/theta.json",
+		"https://raw.githubusercontent.com/driftywinds/driftywinds.github.io/master/AltStore/nyx.json",
+		"https://wuxu1.github.io/wuxu-complete.json",
+		"https://azu0609.github.io/repo/altstore_repo.json",
+		"https://raw.githubusercontent.com/lo-cafe/winston-altstore/main/apps.json",
+		"https://apps.sidestore.io/",
+		"https://connect.sidestore.io/apps.json",
+		"https://driftywinds.github.io/repos/esign.json",
+		"https://alt.crystall1ne.dev",
+		"https://alt.thatstel.la/",
+		"https://apps.altstore.io/",
+		"https://raw.githubusercontent.com/RealBlackAstronaut/CelestialRepo/main/CelestialRepo.json",
+		"https://qingsongqian.github.io/all.html",
+		"https://raw.githubusercontent.com/TheNightmanCodeth/chromium-ios/master/altstore-source.json",
+		"https://raw.githubusercontent.com/YourName028/System-Apps/main/repo.json",
+		"https://raw.githubusercontent.com/Omni-Development/The-Omni-Repository/refs/heads/main/app-repo.json",
+		"https://esign.yyyue.xyz/app.json",
+		"https://raw.githubusercontent.com/actuallyaridan/NeoFreeBird/refs/heads/main/AltSource.json",
+		"https://raw.githubusercontent.com/jay-goobuh/samhub/main/apps",
+		"https://website.burrito.software/altstore/channels/burritosource.json",
+		"https://stikdebug.xyz/index.json",
+		"https://altstore.fouadraheb.com/",
+		"https://www.sachcharak.com/esign/repo/RAK.json",
+		"https://pastefy.app/IDFtys0N/raw",
+		"https://raw.githubusercontent.com/bunny-mod/BunnyTweak/refs/heads/main/app-repo.json",
+		"https://raw.githubusercontent.com/arichornlover/arichornlover.github.io/main/apps2.json",
+		"https://raw.githubusercontent.com/arichornlover/arichornlover.github.io/main/apps.json",
+		"https://raw.githubusercontent.com/Aidoku/Aidoku/altstore/apps.json",
+		"https://raw.githubusercontent.com/paigely/Navic/refs/heads/master/app-repo.json",
+		"https://web.archive.org/web/20210225095501if_/https://appybois.com/",
+		"https://github.com/chachillie/Flycast-iOS/raw/main/flycast-ios.json",
+		"https://ia601505.us.archive.org/10/items/motoca-store/Motoca%20Store.json",
+		"https://apps.manicemu.site/altstore",
+		"https://ipa.thuthuatjb.com/repo",
+		"https://raw.githubusercontent.com/FrizzleM/Nightflix/main/repo.json"
+	]
+	
+	@discardableResult
+	@MainActor
+	static func installIfNeeded() -> Int {
+		guard UserDefaults.standard.bool(forKey: _didInstallKey) == false else {
+			return 0
+		}
+		
+		let insertedCount = _install(_sourceURLStrings.compactMap(URL.init(string:)))
+		UserDefaults.standard.set(true, forKey: _didInstallKey)
+		Logger.misc.info("Installed \(insertedCount) default sources")
+		return insertedCount
+	}
+	
+	@MainActor
+	static func updateFromRemote() async throws -> Int {
+		let urls = try await _fetchRemoteSourceURLs()
+		let insertedCount = _install(urls)
+		Logger.misc.info("Installed \(insertedCount) remote startup sources")
+		return insertedCount
+	}
+	
+	@MainActor
+	private static func _install(_ urls: [URL]) -> Int {
+		let storage = Storage.shared
+		var insertedCount = 0
+		
+		for url in urls {
+			guard !storage.sourceExists(url.absoluteString) else {
+				continue
+			}
+			
+			storage.addSource(
+				url,
+				name: _displayName(for: url),
+				identifier: url.absoluteString,
+				deferSave: true
+			) { error in
+				if let error {
+					Logger.misc.error("Failed to add default source \(url.absoluteString): \(error.localizedDescription)")
+				} else {
+					insertedCount += 1
+				}
+			}
+		}
+		
+		do {
+			if storage.context.hasChanges {
+				try storage.context.save()
+			}
+		} catch {
+			Logger.misc.error("Failed to save sources: \(error.localizedDescription)")
+		}
+		
+		return insertedCount
+	}
+	
+	private static func _fetchRemoteSourceURLs() async throws -> [URL] {
+		let (data, response) = try await URLSession.shared.data(from: _remoteSourcesURL)
+		
+		guard
+			let httpResponse = response as? HTTPURLResponse,
+			(200..<300).contains(httpResponse.statusCode)
+		else {
+			throw DefaultSourceInstallerError.invalidResponse
+		}
+		
+		guard let string = String(data: data, encoding: .utf8) else {
+			throw DefaultSourceInstallerError.invalidData
+		}
+		
+		var seen = Set<String>()
+		return string
+			.split(whereSeparator: \.isNewline)
+			.compactMap { line -> URL? in
+				let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+				guard !trimmed.isEmpty, !trimmed.hasPrefix("#") else {
+					return nil
+				}
+				guard seen.insert(trimmed).inserted else {
+					return nil
+				}
+				return URL(string: trimmed)
+			}
+	}
+	
+	private static func _displayName(for url: URL) -> String {
+		guard let host = url.host?.replacingOccurrences(of: "www.", with: "") else {
+			return url.absoluteString
+		}
+		
+		return host
+	}
+}
+
+enum DefaultSourceInstallerError: LocalizedError {
+	case invalidResponse
+	case invalidData
+	
+	var errorDescription: String? {
+		switch self {
+		case .invalidResponse:
+			return .localized("The source list could not be downloaded.")
+		case .invalidData:
+			return .localized("The source list is not valid text.")
+		}
+	}
+}

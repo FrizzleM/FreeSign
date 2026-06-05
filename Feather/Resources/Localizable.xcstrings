@@ -2133,6 +2133,9 @@
         }
       }
     },
+    "by Frizzle" : {
+
+    },
     "Cancel" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5447,6 +5450,9 @@
           }
         }
       }
+    },
+    "FastSign" : {
+
     },
     "Featured" : {
       "extractionState" : "manual",

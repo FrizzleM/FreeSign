@@ -252,13 +252,17 @@ UIImage* iconTest(NSURL *bundleURL) {
 
 }
 
+static UIColor *FRDefaultTintColor(void) {
+	return [UIColor colorWithRed:0.0 green:76.0 / 255.0 blue:1.0 alpha:1.0];
+}
+
 static CGColorRef FRCreateCGColorFromHex(void) {
 	NSString *hex =
 		[NSUserDefaults.standardUserDefaults
 			stringForKey:@"Feather.userTintColor"];
 
 	if (hex.length == 0) {
-		return UIColor.systemGreenColor.CGColor;
+		return FRDefaultTintColor().CGColor;
 	}
 
 	NSString *sanitized =
@@ -281,7 +285,7 @@ static CGColorRef FRCreateCGColorFromHex(void) {
 		b = ((rgb & 0x0000FF00) >> 8)  / 255.0;
 		a = (rgb & 0x000000FF) / 255.0;
 	} else {
-		return UIColor.systemGreenColor.CGColor;
+		return FRDefaultTintColor().CGColor;
 	}
 
 	return [UIColor colorWithRed:r green:g blue:b alpha:a].CGColor;

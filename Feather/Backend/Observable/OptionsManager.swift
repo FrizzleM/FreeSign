@@ -130,7 +130,7 @@ struct Options: Codable, Equatable {
 		injectPath: .executable_path,
 		injectFolder: .frameworks,
 		ppqString: randomString(),
-		ppqProtection: false,
+		ppqProtection: true,
 		dynamicProtection: false,
 		identifiers: [:],
 		displayNames: [:],
@@ -154,8 +154,8 @@ struct Options: Codable, Equatable {
 		
 		// MARK: Post Modifications
 		
-		post_installAppAfterSigned: false,
-		post_deleteAppAfterSigned: false
+		post_installAppAfterSigned: true,
+		post_deleteAppAfterSigned: true
 	)
 	
 	// MARK: duplicate values are not recommended!
