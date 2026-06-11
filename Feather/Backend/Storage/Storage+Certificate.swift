@@ -114,6 +114,41 @@ extension Storage {
 		fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \CertificatePair.date, ascending: false)]
 		return (try? context.fetch(fetchRequest)) ?? []
 	}
+
+	func selectedCertificateIndex(matching selector: String) -> Int? {
+		let selector = selector.trimmingCharacters(in: .whitespacesAndNewlines)
+		guard !selector.isEmpty else {
+			return nil
+		}
+
+		let certificates = getAllCertificates()
+		if let index = Int(selector), certificates.indices.contains(index) {
+			return index
+		}
+
+		let normalizedSelector = selector.lowercased()
+		for (index, certificate) in certificates.enumerated() {
+			let decoded = getProvisionFileDecoded(for: certificate)
+			let candidates = [
+				certificate.uuid,
+				certificate.nickname,
+				decoded?.UUID,
+				decoded?.Name,
+				decoded?.AppIDName,
+				decoded?.TeamName
+			]
+
+			if candidates.contains(where: { $0?.lowercased() == normalizedSelector }) {
+				return index
+			}
+
+			if decoded?.TeamIdentifier.contains(where: { $0.lowercased() == normalizedSelector }) == true {
+				return index
+			}
+		}
+
+		return nil
+	}
 	
 	func deleteDefaultCertificates() {
 		let certificates = getAllCertificates().filter { $0.isDefault }

@@ -76,6 +76,12 @@ struct FeatherApp: App {
 	
 	private func _handleURL(_ url: URL) {
 		if url.scheme == "freesign" {
+			/// freesign://select-certificate?cert=<nickname|uuid|profile-name|profile-uuid|team-name|index>
+			/// freesign://switch-certificate?cert=<nickname|uuid|profile-name|profile-uuid|team-name|index>
+			if url.host == "select-certificate" || url.host == "switch-certificate" {
+				_handleCertificateSelectionURL(url)
+				return
+			}
 			/// freesign://import-certificate?p12=<base64>&mobileprovision=<base64>&password=<base64>
 			if url.host == "import-certificate" {
 				guard
@@ -165,6 +171,50 @@ struct FeatherApp: App {
 				return
 			}
 		}
+	}
+
+	private func _handleCertificateSelectionURL(_ url: URL) {
+		guard
+			let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+		else {
+			return
+		}
+		let queryItems = components.queryItems ?? []
+
+		func queryValue(_ names: String...) -> String? {
+			for name in names {
+				if let value = queryItems.first(where: { $0.name.lowercased() == name })?.value?.removingPercentEncoding {
+					return value
+				}
+			}
+			return nil
+		}
+
+		let pathSelector = components.path
+			.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+			.removingPercentEncoding
+
+		guard
+			let selector = queryValue("cert", "certificate", "name", "nickname", "uuid", "id", "index")
+				?? (pathSelector?.isEmpty == false ? pathSelector : nil)
+		else {
+			return
+		}
+
+		let generator = UINotificationFeedbackGenerator()
+		generator.prepare()
+
+		guard let index = Storage.shared.selectedCertificateIndex(matching: selector) else {
+			generator.notificationOccurred(.error)
+			UIAlertController.showAlertWithOk(
+				title: .localized("Certificate Not Found"),
+				message: .localized("No certificate matches \"%@\".", arguments: selector)
+			)
+			return
+		}
+
+		UserDefaults.standard.set(index, forKey: "feather.selectedCert")
+		generator.notificationOccurred(.success)
 	}
 }
 
