@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "3379C1B82DA869A1004372DA"
-               BuildableName = "Feather.app"
+               BuildableName = "FreeSign.app"
                BlueprintName = "Feather"
                ReferencedContainer = "container:Feather.xcodeproj">
             </BuildableReference>
@@ -45,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "3379C1B82DA869A1004372DA"
-            BuildableName = "Feather.app"
+            BuildableName = "FreeSign.app"
             BlueprintName = "Feather"
             ReferencedContainer = "container:Feather.xcodeproj">
          </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "3379C1B82DA869A1004372DA"
-            BuildableName = "Feather.app"
+            BuildableName = "FreeSign.app"
             BlueprintName = "Feather"
             ReferencedContainer = "container:Feather.xcodeproj">
          </BuildableReference>

@@ -44,24 +44,25 @@ enum FR {
 		using options: Options,
 		icon: UIImage?,
 		certificate: CertificatePair?,
-		completion: @escaping (Error?) -> Void
+		completion: @escaping (Error?, String?) -> Void
 	) {
 		Task.detached {
 			let handler = SigningHandler(app: app, options: options)
 			handler.appCertificate = certificate
 			handler.appIcon = icon
-			
+
 			do {
 				try await handler.copy()
 				try await handler.modify()
 				try? await handler.clean()
+				let signedUUID = handler.signedUUID
 				await MainActor.run {
-					completion(nil)
+					completion(nil, signedUUID)
 				}
 			} catch {
 				try? await handler.clean()
 				await MainActor.run {
-					completion(error)
+					completion(error, nil)
 				}
 			}
 		}

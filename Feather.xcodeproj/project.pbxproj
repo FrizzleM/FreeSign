@@ -173,16 +173,6 @@
 			knownRegions = (
 				en,
 				Base,
-				de,
-				fr,
-				ru,
-				es,
-				vi,
-				tr,
-				id,
-				pl,
-				it,
-				"zh-Hans",
 			);
 			mainGroup = 3379C1B02DA869A1004372DA;
 			minimizedProjectReferenceProxies = 1;
@@ -419,7 +409,8 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
 				MARKETING_VERSION = "$(FEATHER_PROJECT_VERSION)-debug";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(FEATHER_PRODUCT_BUNDLE_IDENTIFIER)$(FEATHER_DISAMBIGUATOR)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_MODULE_NAME = Feather;
+				PRODUCT_NAME = FreeSign;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -483,7 +474,8 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
 				MARKETING_VERSION = "$(FEATHER_PROJECT_VERSION)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(FEATHER_PRODUCT_BUNDLE_IDENTIFIER)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_MODULE_NAME = Feather;
+				PRODUCT_NAME = FreeSign;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
 				STRIPFLAGS = "-rSTx";

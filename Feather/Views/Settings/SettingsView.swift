@@ -33,7 +33,7 @@ struct SettingsView: View {
 		}
 		return _certificates[_storedSelectedCert]
 	}
-	private let _githubUrl = "https://github.com/Frizzle/FreeSign"
+	private let _githubUrl = "https://github.com/FrizzleM/FreeSign"
     
 	// MARK: Body
 	var body: some View {

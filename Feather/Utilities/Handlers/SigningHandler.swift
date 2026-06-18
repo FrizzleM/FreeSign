@@ -28,7 +28,11 @@ final class SigningHandler: NSObject {
 	// throw an error
 	var appIcon: UIImage?
 	var appCertificate: CertificatePair?
-	
+
+	/// UUID of the Signed record this handler creates, so callers can
+	/// locate the freshly-signed app once `addToDatabase` has run.
+	var signedUUID: String { _uuid }
+
 	init(app: AppInfoPresentable, options: Options = OptionsManager.shared.options) {
 		self._app = app
 		self._options = options

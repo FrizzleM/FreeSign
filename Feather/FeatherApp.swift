@@ -18,14 +18,14 @@ struct FeatherApp: App {
 	
 	@StateObject var downloadManager = DownloadManager.shared
 	@StateObject private var _sourceFetchErrorToast = SourceFetchErrorToastCenter.shared
-	@State private var _certificateSetupState: DefaultCertificateSetupView.SetupState? = DefaultCertificateInstaller.needsInstall ? .loading : nil
+	@State private var _certificateSetupState: FSWelcomeView.SetupState? = DefaultCertificateInstaller.needsInstall ? .loading : nil
 	let storage = Storage.shared
-	
+
 	var body: some Scene {
 		WindowGroup {
 			Group {
 				if let setupState = _certificateSetupState {
-					DefaultCertificateSetupView(
+					FSWelcomeView(
 						state: setupState,
 						retry: {
 							_certificateSetupState = .loading
@@ -80,6 +80,20 @@ struct FeatherApp: App {
 			/// freesign://switch-certificate?cert=<nickname|uuid|profile-name|profile-uuid|team-name|index>
 			if url.host == "select-certificate" || url.host == "switch-certificate" {
 				_handleCertificateSelectionURL(url)
+				return
+			}
+			/// freesign://shortcut?input=InstallDNS
+			/// The "BreakFree" helper shortcut reopens us here once it has
+			/// finished preparing the device, so we resume the pending
+			/// install (see PostSigningShortcutCoordinator).
+			if url.host == "shortcut" {
+				let input = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+					.queryItems?
+					.first(where: { $0.name == "input" })?
+					.value
+				if input == "InstallDNS" {
+					PostSigningShortcutCoordinator.resumePendingInstall()
+				}
 				return
 			}
 			/// freesign://import-certificate?p12=<base64>&mobileprovision=<base64>&password=<base64>
@@ -222,12 +236,7 @@ struct FeatherApp: App {
 extension FeatherApp {
 	@ViewBuilder
 	private var _mainContent: some View {
-		VStack {
-			DownloadHeaderView(downloadManager: downloadManager)
-				.transition(.move(edge: .top).combined(with: .opacity))
-			VariedTabbarView()
-				.transition(.move(edge: .top).combined(with: .opacity))
-		}
+		FSRootView()
 	}
 	
 	@MainActor
